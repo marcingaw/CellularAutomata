@@ -38,16 +38,13 @@ namespace CellularAutomata {
 
     class Program {
 
-        private static readonly int FIELD_ROWS = 20;
-        private static readonly int FIELD_COLS = 60;
-
         static void Main(string[] args) {
-            Cell[][] field = new Cell[FIELD_ROWS][];
+            Cell[][] field = new Cell[Console.WindowHeight - 1][];
 
             {
                 Random rndGen = new Random();
                 for (int k = 0; k < field.Length; k++) {
-                    field[k] = new Cell[FIELD_COLS];
+                    field[k] = new Cell[Console.WindowWidth - 1];
                     for (int l = 0; l < field[k].Length; l++) {
                         field[k][l] = new ConwayCell(rndGen.Next(5) == 0 ? true : false);
                     }
