@@ -39,31 +39,37 @@ namespace CellularAutomata {
     class Program {
 
         static void Main(string[] args) {
-            Cell[][] field = new Cell[Console.WindowHeight - 1][];
+            Cell[][] field = new Cell[Console.WindowHeight - 3][];
+            Cell[][] newField = new Cell[Console.WindowHeight - 3][];
 
             {
                 Random rndGen = new Random();
                 for (int k = 0; k < field.Length; k++) {
                     field[k] = new Cell[Console.WindowWidth - 1];
+                    newField[k] = new Cell[Console.WindowWidth - 1];
                     for (int l = 0; l < field[k].Length; l++) {
                         field[k][l] = new ConwayCell(rndGen.Next(5) == 0 ? true : false);
                     }
                 }
             }
 
-            do {
+            int step = 0;
+            while (true) {
 
                 Console.SetCursorPosition(0, 0);
+                Console.WriteLine("Step: " + (step++).ToString("D6") + "  ---  Hit Enter to stop.");
+                Console.WriteLine();
+
                 for (int k = 0; k < field.Length; k++) {
+                    string theLine = "";
                     for (int l = 0; l < field[k].Length; l++) {
-                        Console.Write(field[k][l].State);
+                        theLine += field[k][l].State;
                     }
-                    Console.WriteLine();
+                    Console.WriteLine(theLine);
                 }
 
-                Cell[][] newField = new Cell[field.Length][];
+                bool anyChanged = false;
                 for (int k = 0; k < newField.Length; k++) {
-                    newField[k] = new Cell[field[k].Length];
                     int rowN = k > 0 ? k - 1 : newField.Length - 1;
                     int rowS = k < newField.Length - 1 ? k + 1 : 0;
                     for (int l = 0; l < newField[k].Length; l++) {
@@ -78,11 +84,29 @@ namespace CellularAutomata {
                                 field[rowS][colW].State,
                                 field[rowS][l].State,
                                 field[rowS][colE].State);
+                        anyChanged |= newField[k][l].State != field[k][l].State;
                     }
                 }
-                field = newField;
 
-            } while (Console.ReadKey(true).KeyChar == ' ');
+                if (anyChanged) {
+                    Cell[][] temp = field;
+                    field = newField;
+                    newField = temp;
+                } else {
+                    Console.SetCursorPosition(19, 0);
+                    Console.WriteLine("Reached a stable population. Hit any key to exit.");
+                    Console.ReadKey(true);
+                    break;
+                }
+
+                if (Console.KeyAvailable) {
+                    if (Console.ReadKey(true).KeyChar == '\r') break;
+                } else {
+                    System.Threading.Thread.Sleep(250);
+                }
+
+            }
+
         }
 
     }
